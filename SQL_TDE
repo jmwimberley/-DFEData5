@@ -1,0 +1,16 @@
+-- Service Master key encrypts the Database Master Key for the master database.
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = '*insert strong password here*';
+
+-- Database Master key creates a certificate in the master database.
+CREATE CERTIFICATE *certificate name* WITH SUBJECT = '*Random Certificate*';
+
+-- The certificate encrypts the Database Encryption Key in the user database.
+USE *database name*;
+
+-- Database Encryption Key ecures entire user database using Transparent Data Encryption.
+CREATE DATABASE ENCRYPTION KEY
+WITH ALGORITHM = *insert algorithm here e.g AES_256*
+ENCRYPTION BY SERVER CERTIFICATE *certificate name*;
+
+ALTER DATABASE *database name*
+SET ENCRYPTION ON;
