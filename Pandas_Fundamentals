@@ -1,0 +1,61 @@
+## First step is to always import the required packages for the coding ahead
+import numpy as np
+import pandas as pd
+
+## Assign data source and read in using Pandas command 'read_csv'
+url = 'https://raw.githubusercontent.com/justmarkham/DAT8/master/data/chipotle.tsv'
+chipotle = pd.read_csv(url, sep = '\t') # Here \t means the file is tab-separated, \n -> new line
+
+## View the first n (10) entries of the dataset using .head(n)
+chipotle.head(10)
+
+## Assess the shape of the dataset inc. the number of observations using shape function
+print(chipotle.shape) # Indexing at the end e.g [0] selects a specific dimension
+
+# Or use info in order to get a brief to all columns, counts and data types
+chipotle.info()
+
+## To print the names of all columns of the dataset
+chipotle.columns
+
+## To find out how the dataset is indexed
+chipotle.index
+
+## "Which item was most-ordered and how many of it?" Here SQL operations can be done via Pandas
+c = chipotle.groupby('item_name') # Groups entires by item name
+c = c.sum() # Totals the quantity of each item by name
+c = c.sort_values(['quantity'], ascending=False) # Sorts sums highest to lowest
+c.head(1) # Prints first (highest) entry of sorted list
+
+## "How many items were ordered in total?"
+total_items_ordered = chipotle.quantity.sum() # Adds number of times each item was ordered
+total_items_ordered # Prints value of variable
+
+## Turn price item into a float if not already
+# First step is to check current data type of price
+chipotle.item_price.dtype # dtype command checks data type
+
+# Create a lambda fucntion to change item price type
+change = lambda x: float(x[1:-1]) # Here [1:-1] used to remove dollar sign prefix and space suffix
+
+# Lastly check item type again to ensure changed correctly
+chipotle.item_price.dtype
+
+## "What is the total revenue earned from the dataset?"
+revenue = (chipotle['quantity']*chipotle['item_price']).sum() # Sum of every items quantity from every order
+print('Revenue was: $' + str(np.round(revenue,2))) # Only 2 decimal places desired due to pence
+
+## "How many orders were made?"
+orders = chipotle.order_id.value_counts().count() # Counts the number of distinct values of order_id column
+orders
+
+## "What is the average revenue per order?"
+chipotle['revenue'] = chipotle['quantity']*chipotle['item_price'] # Creating revenue column, made of multiplying quantity and item price of each row
+order_grouped = chipotle.groupby(by=['order_id']).sum() # Total order per order
+order_grouped.mean()['revenue'] # Total order sum divided by number of orders
+
+# Or in one line
+chipotle.groupby(by=['order_id']).sum().mean()['revenue']
+
+## "How many different items are sold?"
+chipotle.item_name.value_counts().count() # When calling a category, value_counts is a list of distinct values from the selected column
