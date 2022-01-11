@@ -1,0 +1,56 @@
+## Import required package/s
+import pandas as pd
+
+## Create an example dataframe about a fictional army
+raw_data = {'regiment': ['Nighthawks', 'Nighthawks', 'Nighthawks', 'Nighthawks', 'Dragoons', 'Dragoons', 'Dragoons', 'Dragoons', 'Scouts', 'Scouts', 'Scouts', 'Scouts'],
+            'company': ['1st', '1st', '2nd', '2nd', '1st', '1st', '2nd', '2nd','1st', '1st', '2nd', '2nd'],
+            'deaths': [523, 52, 25, 616, 43, 234, 523, 62, 62, 73, 37, 35],
+            'battles': [5, 42, 2, 2, 4, 7, 8, 3, 4, 7, 8, 9],
+            'size': [1045, 957, 1099, 1400, 1592, 1006, 987, 849, 973, 1005, 1099, 1523],
+            'veterans': [1, 5, 62, 26, 73, 37, 949, 48, 48, 435, 63, 345],
+            'readiness': [1, 2, 3, 3, 2, 1, 2, 3, 2, 1, 2, 3],
+            'armored': [1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1],
+            'deserters': [4, 24, 31, 2, 3, 4, 24, 31, 2, 3, 2, 3],
+            'origin': ['Arizona', 'California', 'Texas', 'Florida', 'Maine', 'Iowa', 'Alaska', 'Washington', 'Oregon', 'Wyoming', 'Louisana', 'Georgia']}
+            
+## Set the 'origin' column as the dataframe index
+army.set_index('origin', inplace=True)
+
+## Print only the veterans column
+army.veterans
+
+## Print columns veterans and deaths
+army[["veterans", "deaths"]]
+
+## Print all column names
+army.columns
+
+## Select deaths, size and deserters from Maine and Alaska
+army.loc[["Maine", "Alaska"], ["deaths", "size", "deserters"]] # Loc uses specific values of index column and searches for specific columns to find values
+
+## Select rows 4 to 9 and columns 2 to 5
+army.iloc[3:9, 1:5] # Iloc slices rows (selected index) and columns of dataset
+
+# Select every row after the fourth row and all columns
+army.iloc[4:, :]
+
+# Select every row up to the 4th and all columns
+army.iloc[:4, :]
+
+## Select rows of dataframe where deaths is greater than 50
+army[army["deaths"] > 50]
+
+# Select rows of dataframe where deaths is greater than 500 or less than 50
+army[(army["deaths"] > 500) | (army["deaths"] < 50)]
+
+## Select all regiments not named "Dragoons"
+army[army["regiment"] != "Dragoons"]
+
+## Select rows called TX and Arizona
+army.loc[["Texas", "Arizona"], :]
+
+## Select third cell in the row named Arizona
+army.loc[["Arizona"]].iloc[:,2]
+
+## Select third cell down in the column named deaths
+army.loc[:, ["deaths"]].iloc[2]
