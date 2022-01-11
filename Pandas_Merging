@@ -1,0 +1,29 @@
+## Import required package/s
+import pandas as pd
+import numpy as np
+
+## Import datasets
+cars1 = pd.read_csv("https://raw.githubusercontent.com/guipsamora/pandas_exercises/master/05_Merge/Auto_MPG/cars1.csv")
+cars2 = pd.read_csv("https://raw.githubusercontent.com/guipsamora/pandas_exercises/master/05_Merge/Auto_MPG/cars2.csv")
+print(cars1.head())
+print(cars2.head())
+
+## Fix cars1 to get rid of additional unnamed NaN columns
+cars1 = cars1.loc[:, "mpg":"car"]
+cars1.head()
+
+## No of observations in each dataset
+print(cars1.shape)
+print(cars2.shape)
+
+## Join cars1/2 into a single dataframe called cars
+cars= cars1.append(cars2)
+cars
+
+## Create column called owners, with random number series from 10,000 to 100,000
+nr_owners = np.random.randint(10,000, high=100001, size = 398, dtype='l')
+nr_owners
+
+# Add this column to the database
+cars['owners'] = nr_owners
+cars.tail()
