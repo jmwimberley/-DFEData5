@@ -1,0 +1,36 @@
+# Import necessary package/s
+import pandas as pd
+
+## Create dataframe
+raw_data = {'regiment': ['Nighthawks', 'Nighthawks', 'Nighthawks', 'Nighthawks', 'Dragoons', 'Dragoons', 'Dragoons', 'Dragoons', 'Scouts', 'Scouts', 'Scouts', 'Scouts'], 
+        'company': ['1st', '1st', '2nd', '2nd', '1st', '1st', '2nd', '2nd','1st', '1st', '2nd', '2nd'], 
+        'name': ['Miller', 'Jacobson', 'Ali', 'Milner', 'Cooze', 'Jacon', 'Ryaner', 'Sone', 'Sloan', 'Piger', 'Riani', 'Ali'], 
+        'preTestScore': [4, 24, 31, 2, 3, 4, 24, 31, 2, 3, 2, 3],
+        'postTestScore': [25, 94, 57, 62, 70, 25, 94, 57, 62, 70, 62, 70]}
+        
+# Assign to variable called regiment
+regiment = pd.DataFrame(raw_data, columns = raw_data.keys())
+regiment
+
+## Mean pre-test score from regiment Nighthawks
+regiment[regiment['regiment'] == 'Nighthawks'].groupby('regiment').mean()
+
+## Present general statistics by company
+regiment.groupby('company').describe()
+
+## Mean of each company's pre-test score
+regiment.groupby('company').preTestScore.mean()
+
+# Present mean preTestScores grouped by regiment and company
+regiment.groupby(['regiment', 'company']).preTestScore.mean()
+
+# Mean preTestScores grouped by regiment and company without hierarchical indexing
+regiment.groupby(['regiment', 'company']).preTestScore.mean().unstack() # Unstack removes hierarchical indexing
+
+## "What is the no of observations in each regiment and company?"
+regiment.groupby(['company', 'regiment']).size()
+
+## Iterate over a group and print the name and whole data from the regiment
+for name, group in regiment.groupby('regiment'): # Group dataframe by regiment
+  print(name) # Print regiment name
+  print(group) # Print data of regiment
