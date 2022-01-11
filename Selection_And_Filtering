@@ -1,0 +1,37 @@
+## Import packages
+
+## Import dataset and assign to a variable
+euro12 = pd.read_csv('https://raw.githubusercontent.com/guipsamora/pandas_exercises/master/02_Filtering_%26_Sorting/Euro12/Euro_2012_stats_TEAM.csv', sep=',')
+euro12
+
+## Select only the Goals column
+euro12.Goals
+
+## "How many teams participated in the Euro 2012?"
+euro12.shape[0]
+
+## No of columns in the dataset
+euro12.info()
+
+## View only teams, yellow cars and red cards and assign them to a dataframe called discipline
+discipline = euro12[['Team', 'Yellow Cards', 'Red Cards']]
+discipline
+
+## Sort teams by red cards then to yellow cards
+discipline.sort_values(['Red Cards', 'Yellow Cards'], ascending = False)
+
+## Mean yellow cards given per team
+round(discipline['Yellow Cards'].mean())
+
+## Filter teams that scored more than 6 goals
+euro12[euro12.Goals > 6]
+
+## Select teams that start with G
+euro12[euro12.Team.str.startswith('G')]
+
+## Select first 7 columns
+euro12.iloc[:, 0:7] # .iloc slices vias position of passed integers
+
+## Present only shooting accuracy from ENG, ITA and RUS
+euro12.loc[euro12.Team.isin(['England', 'Italy', 'Russia']), ['Team', 'Shooting Accuracy']]
+
