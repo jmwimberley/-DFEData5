@@ -1,0 +1,43 @@
+## Import required package/s
+import pandas as pd
+import numpy
+
+## Import dataset
+csv_url = 'https://raw.githubusercontent.com/guipsamora/pandas_exercises/master/04_Apply/Students_Alcohol_Consumption/student-mat.csv'
+df = pd.read_csv(csv_url)
+df.head()
+
+## Slice the dataframe from school until the guardian column
+stud_alc = df.loc[: , "school":"guardian"]
+stud_alc.head()
+
+## Create a lambda function to capitalise strings
+capitaliser = lambda x: x.capitalize()
+
+# Capitalise Mjob and Fjob
+stud_alc['Mjob'].apply(capitaliser) # Apply enables the passing of a multi-layered commandi.e lambda function
+stud_alc['Fjob'].apply(capitaliser)
+
+## Print the last elements of the dataset
+stud_alc.tail()
+
+## Overwrite names of jobs of data frame in order to capitalise them
+stud_alc['Mjob'] = stud_alc['Mjob'].apply(capitaliser)
+stud_alc['Fjob'] = stud_alc['Fjob'].apply(capitaliser)
+stud_alc.tail()
+
+## Create a function that returns boolean as to whether over legal age and store in new legal_drinker column
+def majority(x):
+  if x > 17:
+      return True
+  else:
+      return False
+stud_alc['legal_drinker'] = stud_alc['age'].apply(majority)
+stud_alc.head()
+
+## Multiply every number of the dataset by 10
+def times_ten(x):
+    if type(x) = int
+        return 10 * x
+    return x
+stud_alc.apply(times_ten).head(10)
