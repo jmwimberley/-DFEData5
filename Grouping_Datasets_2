@@ -1,0 +1,18 @@
+## Import required package/s
+import pandas as pd
+
+## Import dataset and view to get a feel for dataset structure
+drinks = pd.read_csv('https://raw.githubusercontent.com/justmarkham/DAT8/master/data/drinks.csv')
+drinks.head()
+
+## "Which continent drinks more beer on average?"
+drinks.groupby('continent').beer_servings.mean()
+
+## For each continent print wine consumption statistics
+drinks.groupby('continent').wine_servings.describe()
+
+## Print median alcohol consumption per continent for every column
+drinks.groupby('continent').median()
+
+## Print mean, min and max values for spirit consumption
+drinks.groupby('continent').spirit_servings.agg(['mean', 'min', 'max']) # Agg used when multiple stats desired
