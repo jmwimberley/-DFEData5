@@ -1,0 +1,57 @@
+## Import package/s
+import pandas as pd
+import datetime
+
+## Import data and assign to variable
+data_url = 'https://raw.githubusercontent.com/guipsamora/pandas_exercises/master/06_Stats/Wind_Stats/wind.data'
+data = pd.read_csv(data_url, sep = "\s+", parse_dates = [[0,1,2]]) # parse_dates collates columns and makes them the index, \s+ searches for one or more spaces between entries
+data.head()
+
+## Fix data so instead of saying dates in future it is dates from 1900s in century prefix (YY error)
+def fix_century(x):
+  year = x.year - 100 if x.year > 1989 else x.year
+  return datetime.date(year, x.month, x.day)
+  
+# Apply this to the Yr_Mo_Dy column in order to fix the values
+data['Yr_Mo_Dy'] = data['Yr_Mo_Dy'].apply(fix_century)
+data.head()
+
+## Set correct dates as the index. Data type should be datetime64[ns]
+data["Yr_Mo_Dy"] = pd.to_datetime(data["Yr_Mo_Dy"])
+data = data.set_index('Yr_Mo_Dy')
+data.head()
+
+## Compute missing values for each location over the entire record
+data.isnull().sum()
+
+## Compute how many non-missing values there are in total
+data.shape[0] - data.isnull().sum() # OR data.notnull().sum()
+
+## Calculate mean windspeeds of windspeeds over all locations and all times
+data.sum().sum() / data.notna().sum().sum()
+
+## Create a dataframe called loc_stats and calculate min, max and mean windspeeds and standard devs of windspeeds at each location over all days
+loc_stats = data.describe(percentiles=[])
+
+## Create dataframe called day_stats for min, max and mean across all locations for each day
+day_stats = pd.DataFrame()
+day_stats['min'] = data.min(axis = 1)
+day_stats['max'] = data.max(axis = 1)
+day_stats['mean'] = data.mean(axis = 1)
+day_stats.head()
+
+## Find average windspeed for January for each location
+data.loc[data.index.month == 1].mean()
+
+## Downsample the record to yearly frequency for each location
+data.groupby(data.index.to_period('A')).mean() # to_period input A means annual
+
+# Downsample the record to monthly frequency for each location
+data.groupby(data.index.to_period('M')).mean()
+
+# Downsample the record to weekly frequency for each location
+data.groupby(data.index.to_period('W')).mean()
+
+## Calculate min, max and mean windspeeds and std devs of windspeeds across all locations for each week for first 52 weeks
+weekly = data.resample('W').agg(['min', 'max', 'std']) # Calculating stats for weekly by resampling to per week
+weekly.loc[weekly.index[1:53], "RPT":"MAL"].head(10) # Slice just for first 52 weeks and locations
