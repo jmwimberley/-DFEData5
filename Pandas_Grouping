@@ -1,0 +1,34 @@
+## Import required package/s
+import pandas as pd
+
+## Import dataset and assign to variable users
+users = pd.read_table('https://raw.githubusercontent.com/justmarkham/DAT8/master/data/u.user', 
+                      sep='|', index_col='user_id') # Sep indicates | separated and index_col assigns column to index from                  
+users.head()
+
+## Find mean age per occupation
+users.groupby('occupation').age.mean()
+
+## Discover male ratio per occupation and sort from most to least
+def gen_to_num(x):
+    if x == 'M':
+        return 1
+    if x == 'F':
+        return 0
+users['gen_n'] = users['gender'].apply(gen_to_num) # New column for binary gendering
+a = users.groupby['occupation'].gen_n.sum() / users.occupation.value_counts() * 100 # Creating ratio by doing male count / total count *100 per occupation
+a.sort_values(ascending = False) # Sorting from most to least
+
+## For each occupation, calculate max and min ages
+users.groupby('occupation').age.agg(['min', 'max'])
+
+## For each combination of occupation and gender, calculate mean age
+users.groupby(['occupation', 'gender']).age.mean()
+
+## For each occupation present % male and female
+gen_occ = users.groupby(['occupation', 'gender']).agg({'gender': 'count'}) # Create dataframe that has count applied to each gender per occupation
+occ_count = users.groupby(['occupation']).agg('count') # Create dataframe that has count for each occupation
+
+# Divide gen_oc per occ_count and multiply by 100
+occ_gen = gen_occ.div(occ_count, level = "occupation") * 100 # Level matches multiple groups together before dividing
+occ_gen.loc[:, 'gender'] # Presents all rows from the gender column
