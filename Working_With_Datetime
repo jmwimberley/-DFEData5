@@ -1,0 +1,30 @@
+## Import package/s
+import pandas as pd
+import numpy as np
+
+## Import dataset
+url = "https://raw.githubusercontent.com/guipsamora/pandas_exercises/master/04_Apply/US_Crime_Rates/US_Crime_Rates_1960_2014.csv"
+crime = pd.read_csv(url)
+crime.head()
+
+## "What is the type of the columns?"
+crime.info()
+
+## Convert type of column year to datetime64
+crime.Year = pd.to_datetime(crime.Year, format='%Y')
+crime.info()
+
+## Set year column as index of dataframe
+crime = crime.set_index('Year', drop = True) # Overwrites existing dataframe so that the new index is saved as year, thanks to set_index command
+
+## Delete the total column
+del crime['Total'] # del deletes following syntax
+crime.head()
+
+## Group year by decades and sum the values
+crimes = crime.resample('10AS').sum() # Reshaping dataframe to one every ten entries and summing individual years statistics
+population = crime['Population'].resample('10AS').max() # Making population take one value every ten years
+crimes['Population'] = population # Updating column to decade-grouped
+
+## "What is the most dangerous decade to live in the US?"
+crime.idxmax(0)
