@@ -1,0 +1,61 @@
+## Import package/s
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline # Set graphs to show in the notebook
+sns.set(style="ticks") # Set seaborn graphs to a different style
+
+## Import dataset
+path = 'https://raw.githubusercontent.com/guipsamora/pandas_exercises/master/07_Visualization/Online_Retail/Online_Retail.csv'
+online_rt = pd.read_csv(path, encoding = 'latin1')
+online_rt.head()
+
+## Histogram with 10 countries with most Quantity ordered outside of UK (highest number)
+countries = online_rt.groupby('Country').sum() # Grouping by country
+countries = countries.sort_values(by = 'Quantity', ascending = False)[1:11] # Sorts to go in descending order and removes top value
+
+# Plot the graph
+countries['Quantity'].plot(kind='bar')
+plt.xlabel('Countries')
+plt.ylabel('Quantity')
+plt.title('10 Countries with most orders besides UK')
+plt.show()
+
+## Exclude negative quantity entries
+online_rt = online_rt[online_rt.Quantity > 0]
+
+## Create a scatterplot with quantity per unit price by customer ID for top 3 countries for sales volume except UK
+# Find top 3 countries
+sales_volume = online_rt.groupby('Country').Quantity.sum().sort_values(ascending = False) # Producing sales volume by country column
+top3 = sales_volume.index[1:4] # 1-4 in order to exclude UK which is top
+online_rt['Revenue'] = online_rt.Quantity * online_rt.UnitPrice # Create revenue column per order
+grouped = online_rt[online_rt.Country.isin(top3)].groupby(['CustomerID', 'Country']) # Summing orders per ID and country for the top 3 countries
+plottable = grouped['Quantity', 'Revenue'].agg('sum') # Summing quantity of items and revenue for each customerID from each country
+plottable['AvgPrice'] = plottable.Revenue / plottable.Quantity # Creating average price column per customerID
+plottable['Country'] = plottable.index.get_level_values(1) # Value of the index and put in column Country
+# Graphing
+g = sns.FacetGrid(plottable, col="Country") # Creating the facet grid
+g.map(plt.scatter, "Quantity", "AvgPrice", alpha=1) # Map over the grid to make scatterplots
+g.add_legend() # Add legend to each plot
+
+# Plot the data for each CustomerID on a single graph
+grouped = online_rt.groupby(['CustomerID'])
+plottable = grouped['Quantity', 'Revenue'].agg('sum')
+plottable['AvgPrice'] = plottable.Revenue / plottable.Quantity
+plt.scatter(plottable.Quantity, plottable.AvgPrice)
+plt.xlim(-40,2000)
+plt.ylim(-1,80)
+plt.plot()
+
+# Plot a line chart showing revenue per unit price
+buckets = np.arange(price_start, price_end, price_interval) # Creating buckets to collect data accordingly
+revenue_per_price = online_rt.groupby(pd.cut(online_rt.UnitPrice, buckets)).Revenue.sum() # Selecting the data and summing
+revenue_per_price.plot()
+plt.xlabel('Unit Price (in intervals of '+str(1)+')')
+plt.ylabel('Revenue')
+plt.xticks(np.arange(0, 50, 3),
+           np.arange(0, 50, 3)) # Show x in intervals of 3 from start to end parameter
+plt.yticks([0,500000,1000000,1500000,2000000,2500000],
+           ['$0', '$0.5M', '$1M', '$1.5M', '$2M', '$2.5M']) # Show y in terms of millions
+plt.show()
