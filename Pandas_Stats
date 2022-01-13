@@ -1,0 +1,34 @@
+## Import package/s required
+import pandas as pd
+
+## Import dataset
+baby_names = pd.read_csv('https://raw.githubusercontent.com/guipsamora/pandas_exercises/master/06_Stats/US_Baby_Names/US_Baby_Names_right.csv')
+baby_names.info()
+
+## Delete columns unnamed:0 and Id
+del baby_names['Unnamed: 0']
+del baby_names['Id']
+baby_names.head()
+
+## "Are there more male or female names in the data?"
+baby_names['gender'].value_counts()
+
+## Group datasetby name and and assign to names
+names = baby_names.groupby("Name").sum()
+names.sort_values("Count", ascending = 0).head()
+
+## "How many different names exist in the dataset?"
+len(names)
+
+## Name with the most occurences
+names.Count.idxmax()
+
+## "How many different names have the least occurrences?"
+len(names[names.Count == names.Count.min()])
+
+## Median name occurrence
+names[names.Count == names.Count.median()]
+
+## Standard deviation of names
+names.Count.std()
+names.describe()
