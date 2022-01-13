@@ -1,0 +1,45 @@
+## Create variables
+animals = ['rabbit', 'pangolin', 'platypus']
+numbers = [1,2,3,4]
+
+## Basic print loop
+for animal in animals:
+    print(animal, end= " ") # Assigning end parameter tells the script what to do after (new line, space etc)
+
+## Print pyramid of numbers
+for i n range(10):
+    for sp in range(10-i):
+        print(' ', end=' ')
+    for j in range(i):
+        print(i, end = ' ')
+    print()
+    
+## Create dictionary
+prose = {
+    "William Wordsworth": "poem 123 ",
+    "Shakespeare": "Merchant of Venice",
+    3: "Illiad",
+    4 : "Romeo and Juliet",
+    False: "Poseidon and Hades are pretty good friends"
+}
+
+##
+for randomKey, randomValue in prse.items():
+    print('random key =' + str(randomKey), end=" ")
+    print('random value =' + str(randomValue))
+    
+##
+def randomfn(potato):
+    for tomato, peas in potato.items():
+      print(tomato, peas)
+randomfn(prose)
+
+randomfn(animals)
+def randomfn2(potato):
+  try:
+    for tomato, peas in potato.items()
+      print(tomato, peas)
+    except:
+      print('Are you sure you used a dictionary?')
+randomfn2(prose)
+randomfn2(animals)
