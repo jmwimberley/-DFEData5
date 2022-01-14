@@ -1,0 +1,41 @@
+## Import package/s
+import pandas as pd
+pd.__version__
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+## Import data
+# Link: https://www.kaggle.com/rounakbanik/ted-talks
+ted = pd.read_csv('ted.csv')
+ted.shape
+ted.dtypes
+
+## Count the number of missing values in each column
+ted.isna().sum()
+
+## "Which talk provides the most online discussion?"
+ted.sort_values('comments').tail() # Biased in favour of older talks
+ted['comments_per_view'] = ted.comments / ted.views
+ted['views_per_comment'] = ted.views / ted.comments
+
+## Visualise the distribution of comments
+ted.comments.plot(kind='hist')
+ted[ted.comments < 1000].comments,plot(kind='hist')
+ted.query('comments < 1000').comments.plot(kind='hist') # Alternate method using query command instead
+ted.loc[ted.comments < 1000, 'comments'].plot(kind='hist', bins=20) # Alternate method using loc accessor
+ted.loc[ted.comments < 1000, 'comments'].plot(kind='box') # Box method, less useful for concentrated data
+
+## Plot the number of talks from each year
+ted['film_datetime'] = pd.to_datetime(ted.film_date, unit='s') # Convert film_date into correct datetime format
+ted[['event', 'film_datetime']].sample(5) # Verify event name matches film_datetime for sample
+ted.dtypes # New column uses datetime data type
+ted.film_datetime.dt.year.head() # Datetime columns have attributes under dt namespace (similar to string methods under str namespace)
+ted.film_datetime.dt.year.value_counts() # Number of talks each year using value_counts()
+ted.film_datetime.dt.year.value_counts().sort_index().plot() # Sorting index before plotting
+ted.film_datetime.max() # Showing only partial data is available for 2017
+
+## "Best" events in TED history to attend
+ted.groupby('event').views.mean().head() # Using views as gauge for quality of talk
+ted.groupby('event').views.mean().sort_values().tail() # Find largest event views
+ted.groupby('event').views.agg(['count', 'mean']).sort_values('mean').tail() # Number of talks along with mean views
+ted.groupby('event').views.agg(['count', 'mean', 'sum']).sort_values('sum').tail() # Total views per event
