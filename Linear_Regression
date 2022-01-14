@@ -1,0 +1,207 @@
+## Import required package/s
+import matpoltlib.pyplot as plt
+import seaborn as sns; sns.set()
+import numpy as np
+
+## Simple linear regression
+# The most familiar linear regression is the straight line 'y=mx+b' model.
+rng = np.random.RandomState(1)
+x = 10*rng.rand(50)
+y = 2*x - 5 + rng.randn(50) # Scattered about a line with slope 2 and intercept -5
+plt.scatter(x, y);
+
+# Scikit-Learn's LinearRegression estimator fits the data and constructs line of best fit
+from sklearn.linear_model import LinearRegression
+model = LinearRegression(fit_intercept=True) # Initialising model to also fit the y intercept
+model.fit(x[:, np.newaxis], y) # Fit the model to existing data
+xfit = np.linspace(0, 10, 1000) # Random values to pass through the model
+yfit = model.predict(xfit[:, np.nexaxis]) # Outputs of the model
+plt.scatter(x,y)
+plt.plot(xfit,yfit)
+print("Model slope: ", model.coef_[0]) # Gather slope coefficient from model
+print("Model intercept: ", model.intercept_) # Gather y intercept from model
+
+## More complex linear regression
+# LinearRegression can also handle multidimensional linear models of form y = a0 + a1x1 + a2x2 + ...
+rng = np.random.RandomState(1)
+X = 10 * rng.rand(100,3) # Constructing inputs into function
+y = 0.5 + np.dot(X, [1.5, -2., 1.]) # y data constructed from 3 random x values
+# LinearRegression can fit lines, planes or hyperplanes to data
+model.fit(X, y)
+print(mode.intercept_)
+print(model.coef_)
+
+## Basis Function Regression
+# Transform data to adapt linear regression to nonlinear relationships between variables
+# The idea is to take a multidimensional linear model and build the x1,x2,x3,... values from single input x
+# Thus x_n = f_n(x), which will still have a linear model as coefficients a_n never multiply or divide each other
+
+## Polynomial Basis Functions
+from sklearn.preprocessing import PolynomialFeatures # Polynomial projection
+x = np.array([2, 3, 4]) # Create one-dimensional array
+poly = PolynomialFeatures(3, include_bias=False) # Number is desired order of output
+poly.fit_transform(x[:, None]) # Converted to three-dimensional by multiplying by itself
+
+## Making a 7th-degree polynomial basis model
+from sklearn.pipeline import make_pipeline
+poly_model = make_pipeline(PolynomialFeatures(7), LinearRegression()) # Putting the transform in place
+rng = np.random.RandomState(1)
+x = 10 * rng.rand(50) # Creating input data
+y = np.sin(x) + 0.1 * rng.randn(50) # Creating output
+poly_model.fit(x[:, np.newaxis], y) # Fit the model to existing data
+xfit = np.linspace(0, 10, 1000)
+yfit = poly_model.predict(xfit[:, np.newaxis])
+plt.scatter(x,y)
+plt.plot(xfit,yfit);
+
+## Gaussian Basis Functions
+# Gaussian basis functions are not built into Scikit-Learn, but can be created through a custom transformer
+# Scikit-Learn transformers are implemented as Python classes
+from sklearn.base import BaseEstimator, TransformerMixin
+
+class GaussianFeatures(BaseEstimator, TransformerMixin):
+    """Uniformly spaced Gaussian features for one-dimensional input"""   
+x = 10 * rng.rand(50) # Creating input data
+y = np.sin(x) + 0.1 * rng.randn(50) # Creating output
+    def __init__(self, N, width_factor=2.0):
+        self.N = N
+        self.width_factor = width_factor
+        
+    @staticmethod
+    def _gauss_basis(x, y, width, axis=None):
+        arg = (x - y) / width
+        return np.exp(-0.5 * np.sum(arg ** 2, axis))
+        
+    def fit(self, X, y=None): # Create N centres spread along the data range
+        self.centres_ np.linspace(X.min(), X.max(), self.N)
+        self.width_ = self.width_factor * (self.centres_[1] - self.centres_[0])
+        return self
+        
+    def transform(self, X):
+        return self._gauss_basis(X[:, :, np.newaxis], self.centres_, self.width_, axis=1)
+        
+gauss_model = make_pipeline(GaussianFeatures(20), LinearRegression()) # 20th degree model
+gauss_model.fit(x[:, np.newaxis], y) # Fit the gaussian model
+xfit = np.linspace(0, 10, 1000) # Inputs to the gaussian model
+yfit = gauss_model.predict(xfit[:, np.newaxis]) # Outputs of the gaussian model
+plt.scatter(x,y)
+plt.plot(xfit, yfit)
+plt.xlim(0, 10);
+ 
+## Regularisation
+# Basis functions can lead to overfitting
+# Overfitting example
+x = 10 * rng.rand(50) # Creating input data
+y = np.sin(x) + 0.1 * rng.randn(50) # Creating output
+model = make_pipeline(GaussianFeatures(30), LinearRegression()) # 30th degree model
+model.fit(x[:, np.newaxis], y) # Fit the model
+plt.scatter(x,y)
+plt.plot(xfit, model.predict(xfit[:, np.newaxis]))
+plt.xlim(0, 10)
+plt.ylim(-1.5, 1.5)
+
+# Model has too much flexibility, visualised by plotting coefficients of Gaussian bases with respect to locations
+def basis_plot(mode, title=None):
+    fig, ax = plt.subplots(2, sharex=True) # Set up side by side plots
+    model.fit(x[:, np.newaxis], y)
+    ax[0].scatter(x,y) # Plot data as in original
+    ax[0].plot(xfit, model.predict(xfit[:, np.newaxis]))
+    ax[0].set(xlabel='x', ylabel='y', ylim=(-1.5, 1.5))
+    if title:
+        ax[0].set_title(title)
+    ax[1].plot(model.steps[0][1].centres_, model.steps[1][1].coef_) # Plot coefficient of gaussian bases
+    ax[1].set(xlabel='basis location', ylabel='coefficient', xlim=(0,10))
+model = make_pipeline(GaussianFeatures(30), LinearRegression()) # Make model 30th degree
+basis_plot(model)
+# Coefficients of adjacent basis functions blow up and cancel each other out when they overlap, leading to overfitting
+# Limiting spikes explicitly in the model is regularisation, and is done by penalising large values of model parameters
+
+## Ridge Regression (L_2 Regularisation)
+# Penalises the sum of squares of the model coefficients, with a parameter that controls penalty strength
+from sklearn.linear_model import Ridge # Ridge estimator is Scikit-Learn built in penalised model
+model = make_pipeline(GaussianFeatures(30), Ridge(alpha=0.1)) # Alpha sets penalty to control model complexity
+basis_plot(model, title='Ridge Regression')
+
+## Lasso Regression (L_1 Regularisation)
+# Penalises the sum of absolute values of regression coefficients
+# Lasso tends to favour sparse models, by preferentiallit setting model coefficients to 0
+from sklearn.linear_model import lasso
+model = make_pipeline(GaussianFeatures(30), Lasso(alpha=0.001))
+basis_plot(model, title='Lasso Regression')
+# Majority of coefficients are set to 0, with the behaviour of the model shown by a small subset of basis functions
+
+##############################
+# PREDICTING BICYCLE TRAFFIC #
+##############################
+
+## Predicting the number of bicycle trips across Fremont Bridge (Seattle) based on weather, season and other factors
+## Requires joining bike data with another dataset and determine extent factors like weather and seasonal affect bike traffic volume
+## Perform simple linear regression to relate weather and other info to bicycle counts to estimate effect of a change on number of riders
+## Shows how Scikit-Learn can be used in a statistical modelling framework, where parameters have interpretable meaning
+
+## Datasets
+# !curl -o FremontBridge.csv https://data.seattle.gov/api/views/65db-xm6k/rows.csv?accessType=DOWNLOAD
+# http://www.ncdc.noaa.gov/cdo-web/search?datasetid=GHCND
+
+## Import package/s and dataset
+import pandas as pd
+counts = pd.read_csv('FremontBridge.csv', index_col='Date', parse_dates=True)
+weather = pd.read_csv('data/BicycleWeather.csv', index_col='DATE', parse_dates=True)
+
+## Compute total daily bicycle traffic into own dataframe
+
+daily = counts.resample('d').sum()
+daily['Total'] = daily.sum(axis=1)
+daily = daily[['Total']] # Removing all other columns
+
+# Adding binary columns that indicate day of the week
+days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+for i in range(7):
+    daily[days[i]] = (daily.index.dayofweek == i).astype(float)
+    
+# Indicator of riders behaving differently on holidays
+from pandas.tseries.holiday import USFederalHolidayCalendar
+cal = USFederalHolidayCalendar()
+holidays = cal.holidays('2012', '2016) # Determining holidays from the years 2012 and 2016
+daily = daily.join(pd.Series(1, index=holidays, name='holiday')) # Fill holidays column with 1 for yes
+daily['holiday'].fillna(0, inplace=True) # Fill other days with 0 for no
+
+# Indicator of hours of daylight affecting how many people ride
+def hours_of_daylight(date, axis=23.44, latitude=47.61):
+    """Compute the hours of daylight for the given date"""
+    days = (date - pd.datetime(2000, 12, 21)).days
+    m = (1. - np.tan(np.radians(latitude)) * np.tan(np.radians(axis) * np.cos(days * 2 * np.pi / 365.25)))
+    return 24. * np.degrees(np.arccos(1 - np.clip(m, 0, 2))) / 180.
+daily['daylight_hrs'] = list(map(hours_of_daylight, daily.index)) # Add daylight hours column to daily dataframe
+daily[['daylight_hrs']].plot()
+plt.ylim(8, 17)
+
+# Average temperature and total precipitation (with flag for when a day is dry)
+weather['TMIN'] /= 10
+weather['TMAX'] /= 10
+weather['Temp (C)'] = 0.5 * (weather['TMIN'] + weather['TMAX']) # temps in 1/10 deg C so need converting
+weather['PRCP'] /= 254
+weather['dry day'] = (weather['PRCP'] == 0).astype(int) # precip is in 1/10 mm, convert to inches
+daily = daily.join(weather[['PRCP', 'Temp (C)', 'dry day']]) # Join new columns to daily dataframe
+daily['annual'] = (daily.index - daily.index[0]).days / 365
+
+## We can choose the columns to use and fit a linear regression model to the data
+# Setting fit_intercept = False as the daily flags operate as their own day-specific intercepts
+daily.dropna(axis=0, how='any', inplace=True) # Drop any rows with null values
+column_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'holiday', 'daylight_hrs', 'PRCP', 'dry day', 'Temp (C)', 'annual']
+X = daily[column_names] # Gathering input data as each column represents another polynomial degree
+y = daily['Total'] # Total is the actual data
+model = LinearRegression(fit_intercept=False)
+model.fit(X, y)
+daily['predicted'] = model.predict(X)
+
+# Compare total and predicted bicycle traffic
+daily[['Total', 'predicted']].plot(alpha=0.5);
+params = pd.Series(model.coef_, index =X.columns) # View coefficients of linear model to see how much each feature contributes to the count
+
+## As coefficients can be hard to interpet without uncertainties, compute them
+from sklearn.utils import resample
+np.random.seed(1)
+err = np.std([model.fit(*resample(X, y)).coef_ for i in range(1000)], 0) # Calculating error via standard deviation of parameter
+
+params
